@@ -1,0 +1,9 @@
+{
+    "name": "elmdb",
+    "version": "0.0.1",
+    "repository": "https://github.com/talrasha007/elmdb.git",
+    "dependencies": {
+        "nan": "*"
+    },
+    "readmeFile": "README.md"
+}
