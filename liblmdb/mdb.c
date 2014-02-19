@@ -73,7 +73,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
 
 #if !(defined(BYTE_ORDER) || defined(__BYTE_ORDER))
 #include <netinet/in.h>
@@ -88,11 +87,14 @@
 #endif
 
 #ifndef _WIN32
+#include <unistd.h>
 #include <pthread.h>
 #ifdef MDB_USE_POSIX_SEM
 # define MDB_USE_HASH		1
 #include <semaphore.h>
 #endif
+#else
+typedef SSIZE_T ssize_t;
 #endif
 
 #ifdef USE_VALGRIND
