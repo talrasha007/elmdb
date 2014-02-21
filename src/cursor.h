@@ -14,7 +14,7 @@ private:
 	// Stores whether keys should be treated as uint32_t
 	bool keyIsUint32;
 	// Key/data pair where the cursor is at
-	MDB_val key, data;
+	//MDB_val key, data;
 
 public:
 	CursorWrap(MDB_cursor *cursor);
@@ -53,84 +53,87 @@ public:
 
 	* Callback that accepts the key and value
 	*/
-	NAN_METHOD(getCurrent);
+	static NAN_METHOD(get);
 
 	
 	/*
 	Asks the cursor to go to the first key-data pair in the database.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToFirst);
+	static NAN_METHOD(goToFirst);
 
 	/*
 	Asks the cursor to go to the last key-data pair in the database.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToLast);
+	static NAN_METHOD(goToLast);
 
 	/*
 	Asks the cursor to go to the next key-data pair in the database.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToNext);
+	static NAN_METHOD(goToNext);
 
 	/*
 	Asks the cursor to go to the previous key-data pair in the database.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToPrev);
+	static NAN_METHOD(goToPrev);
 
 	/*
 	Asks the cursor to go to the specified key in the database.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToKey);
+	static NAN_METHOD(goToKey);
 
 	/*
 	Asks the cursor to go to the first key greater than or equal to the specified parameter in the database.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToRange);
+	static NAN_METHOD(goToRange);
 
 	/*
 	For databases with the dupSort option. Asks the cursor to go to the first occurence of the current key.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToFirstDup);
+	static NAN_METHOD(goToFirstDup);
 
 	/*
 	For databases with the dupSort option. Asks the cursor to go to the last occurence of the current key.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToLastDup);
+	static NAN_METHOD(goToLastDup);
 
 	/*
 	For databases with the dupSort option. Asks the cursor to go to the next occurence of the current key.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToNextDup);
+	static NAN_METHOD(goToNextDup);
 
 	/*
 	For databases with the dupSort option. Asks the cursor to go to the previous occurence of the current key.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToPrevDup);
+	static NAN_METHOD(goToPrevDup);
 
 	/*
 	For databases with the dupSort option. Asks the cursor to go to the specified key/data pair.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToDup);
+	static NAN_METHOD(goToDup);
 
 	/*
 	For databases with the dupSort option. Asks the cursor to go to the specified key with the first data that is greater than or equal to the specified.
 	(Wrapper for `mdb_cursor_get`)
 	*/
-	NAN_METHOD(goToDupRange);
+	static NAN_METHOD(goToDupRange);
 
 	/*
 	Deletes the key/data pair to which the cursor refers.
 	(Wrapper for `mdb_cursor_del`)
 	*/
-	NAN_METHOD(del);
+	static NAN_METHOD(del);
+
+private:
+	template <MDB_cursor_op OP> static NAN_METHOD(getCommon);
 };
