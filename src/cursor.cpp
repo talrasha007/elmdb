@@ -93,7 +93,6 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 		break;
 	}
 
-	void* oriKey = key.mv_data;
 	int rc = mdb_cursor_get(cw->cursor, &key, &data, OP);
 
 	if (rc == MDB_NOTFOUND) {
