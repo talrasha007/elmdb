@@ -181,13 +181,12 @@ NAN_METHOD(TxnWrap::del) {
 	}
 
 	int flags = 0;
-	MDB_val key, data;
-	key.mv_data = Buffer::Data(args[1]);
-	key.mv_size = Buffer::Length(args[1]);
+	MDBVal kk(args[1]), vv;
+	MDB_val key = kk.val(), data;
 
 	if (!args[2]->IsUndefined()) {
-		data.mv_data = Buffer::Data(args[2]);
-		data.mv_size = Buffer::Length(args[2]);
+		vv.from(args[2]);
+		data = vv.val();
 	}
 
 	int rc = mdb_del(tw->txn, dw->dbi, &key, args[2]->IsUndefined() ? NULL : &data);
