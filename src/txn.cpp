@@ -159,8 +159,8 @@ NAN_METHOD(TxnWrap::put) {
 
 	int flags = 0;
 	MDBVal key(args[1]), data(args[2], true);
-
-	int rc = mdb_put(tw->txn, dw->dbi, &key.val(), &data.val(), flags);
+	MDB_val tk(key.val()), tv(data.val());
+	int rc = mdb_put(tw->txn, dw->dbi, &tk, &tv, flags);
 	if (rc != 0) {
 		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
 		NanReturnUndefined();
@@ -180,7 +180,7 @@ NAN_METHOD(TxnWrap::del) {
 		NanReturnUndefined();
 	}
 
-	int flags = 0;
+	//int flags = 0;
 	MDBVal kk(args[1]), vv;
 	MDB_val key = kk.val(), data;
 

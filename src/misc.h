@@ -17,7 +17,9 @@ public:
 		_val.mv_size = 0;
 	}
 
-	MDBVal(v8::Local<v8::Value> v, bool stringOnly = false) {
+	MDBVal(v8::Local<v8::Value> v, bool stringOnly = false) : _shouldFree(false) {
+		_val.mv_data = NULL;
+		_val.mv_size = 0;
 		from(v, stringOnly);
 	}
 
