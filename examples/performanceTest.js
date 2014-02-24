@@ -5,12 +5,12 @@ env.open({
     path: './',
     mapSize: 1024 * 1024 * 256,
     maxDbs: 10,
-    flags: 0x10000 | 0x40000
+    flags: elmdb.MDB_NOSYNC
 });
 
 var dbi = env.openDbi({
     name: 'testdb',
-    flags: 0x40000
+    flags: elmdb.MDB_CREATE
 });
 
 function performanceTest(fn) {
@@ -39,7 +39,7 @@ function put(cb) {
 
 function put1k(cb) {
     function pp(k) {
-        txn.put(dbi, k, '');
+        txn.put(dbi, k, k);
     }
 
     for (var i = 0; i < 1000; i++) {
@@ -56,6 +56,7 @@ function put1k(cb) {
 function get1k(cb) {
     function gg(k) {
         txn.get(dbi, k);//new Buffer(k));
+        //txn.get(dbi, new Buffer(k));
     }
 
     for (var i = 0; i < 1000; i++) {
@@ -84,7 +85,8 @@ function curReadSeq(cb) {
 }
 
 //performanceTest(put);
-//performanceTest(put1k);
-performanceTest(curReadSeq);
+performanceTest(put1k);
+//performanceTest(curReadSeq);
+performanceTest(get1k);
 //performanceTest(get1k);
-
+//performanceTest(get1k);

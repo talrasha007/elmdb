@@ -1,6 +1,6 @@
 #include <nan.h>
 
-#include "elmdb.h"
+#include "misc.h"
 #include "dbi.h"
 #include "txn.h"
 #include "cursor.h"
@@ -70,22 +70,24 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 	NanScope();
 
 	CursorWrap *cw = ObjectWrap::Unwrap<CursorWrap>(args.This());
+
+	MDBVal kk, vv;
 	MDB_val key = { 0 }, data = { 0 };
 
 	switch (OP)
 	{
 	case MDB_GET_BOTH:
 	case MDB_GET_BOTH_RANGE:
-		key.mv_data = Buffer::Data(args[0]);
-		key.mv_size = Buffer::Length(args[0]);
-		data.mv_data = Buffer::Data(args[1]);
-		data.mv_size = Buffer::Length(args[1]);
+		kk.from(args[0]);
+		vv.from(args[1], true);
+		key = kk.val();
+		data = vv.val();
 		break;
 	case MDB_SET:
 	case MDB_SET_KEY:
 	case MDB_SET_RANGE:
-		key.mv_data = Buffer::Data(args[0]);
-		key.mv_size = Buffer::Length(args[0]);
+		kk.from(args[0]);
+		key = kk.val();
 		break;
 	default:
 		break;
@@ -105,10 +107,10 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 	Local<Array> ret = Array::New(2);
 
 	// If key is not returned by lmdb, dup it.
-	if (oriKey != key.mv_data) ret->Set(0, NanNewBufferHandle((char*)key.mv_data, key.mv_size, freeNothing, NULL));
-	else ret->Set(0, NanNewBufferHandle((char*)key.mv_data, key.mv_size));
+	if (cw->keyIsUint32) ret->Set(0, Number::New(*(uint32_t*)key.mv_data));
+	else ret->Set(0, String::New((char*)key.mv_data, int(key.mv_size)));
 
-	ret->Set(1, NanNewBufferHandle((char*)data.mv_data, data.mv_size, freeNothing, NULL));
+	ret->Set(1, String::New((char*)data.mv_data, int(data.mv_size)));
 	
 	NanReturnValue(ret);
 }

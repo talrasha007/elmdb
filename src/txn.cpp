@@ -1,6 +1,6 @@
 #include <nan.h>
 
-#include "elmdb.h"
+#include "misc.h"
 
 #include "dbi.h"
 #include "env.h"
@@ -131,9 +131,8 @@ NAN_METHOD(TxnWrap::get) {
 		NanReturnUndefined();
 	}
 
-	MDB_val key, data;
-	key.mv_data = Buffer::Data(args[1]);
-	key.mv_size = Buffer::Length(args[1]);
+	MDBVal kk(args[1]);
+	MDB_val key = kk.val(), data;
 
 	int rc = mdb_get(tw->txn, dw->dbi, &key, &data);
 
@@ -144,7 +143,7 @@ NAN_METHOD(TxnWrap::get) {
 		NanReturnUndefined();
 	}
 
-	NanReturnValue(NanNewBufferHandle((char*)data.mv_data, data.mv_size, freeNothing, NULL));
+	NanReturnValue(String::New((char*)data.mv_data, int(data.mv_size)));
 }
 
 NAN_METHOD(TxnWrap::put) {
@@ -159,13 +158,9 @@ NAN_METHOD(TxnWrap::put) {
 	}
 
 	int flags = 0;
-	MDB_val key, data;
-	key.mv_data = Buffer::Data(args[1]);
-	key.mv_size = Buffer::Length(args[1]);
-	data.mv_data = Buffer::Data(args[2]);
-	data.mv_size = Buffer::Length(args[2]);
+	MDBVal key(args[1]), data(args[2], true);
 
-	int rc = mdb_put(tw->txn, dw->dbi, &key, &data, flags);
+	int rc = mdb_put(tw->txn, dw->dbi, &key.val(), &data.val(), flags);
 	if (rc != 0) {
 		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
 		NanReturnUndefined();
