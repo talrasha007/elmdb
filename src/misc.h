@@ -35,7 +35,7 @@ public:
 			_val.mv_data = NanCString(v, &_val.mv_size);
 			_shouldFree = true;
 		}
-		else if (!stringOnly && v->IsUint32()) {
+		else if (!stringOnly && v->IsInt32()) {
 			_intval = v->Uint32Value();
 			_val.mv_data = &_intval;
 			_val.mv_size = sizeof(_intval);
