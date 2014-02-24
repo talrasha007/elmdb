@@ -72,7 +72,7 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 	CursorWrap *cw = ObjectWrap::Unwrap<CursorWrap>(args.This());
 
 	MDBVal kk, vv;
-	MDB_val key = { 0 }, data = { 0 };
+	MDB_val key = { 0, 0 }, data = { 0, 0 };
 
 	switch (OP)
 	{
