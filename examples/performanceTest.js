@@ -5,7 +5,7 @@ env.open({
     path: './',
     mapSize: 1024 * 1024 * 256,
     maxDbs: 10,
-    flags: elmdb.MDB_NOSYNC
+    flags: elmdb.MDB_NOSYNC | elmdb.MDB_NOMETASYNC | elmdb.MDB_NOLOCK | elmdb.MDB_NOTLS
 });
 
 var dbi = env.openDbi({
@@ -59,24 +59,32 @@ function get1k(cb) {
         //txn.get(dbi, new Buffer(k));
     }
 
+    var txn = env.beginTxn({ flags: elmdb.MDB_RDONLY });
     for (var i = 0; i < 1000; i++) {
-        var txn = env.beginTxn();
         for (var j = 1000; j >= 0; j--) {
             gg(i + '.' + j);
         }
-        txn.commit();
+        //txn.reset();
+        //txn.renew();
     }
 
+    txn.abort();
     cb(null, 'get 1M records(1k per txn)');
 }
 
 function curReadSeq(cb) {
-    var txn = env.beginTxn({ flags: 0x20000 }),
+    var txn = env.beginTxn({ flags: elmdb.MDB_RDONLY }),
         cur = new elmdb.Cursor(txn, dbi),
         cnt = 0;
 
     cur.goToFirst();
-    while (cur.goToNext() && cnt < 150000) cnt++;
+    while (cur.goToNext()) {
+        cnt++;
+        if ((cnt % 10240) === 0) {
+            txn.reset();
+            txn.renew();
+        }
+    }
 
     cur.close();
     txn.abort();
@@ -86,7 +94,7 @@ function curReadSeq(cb) {
 
 //performanceTest(put);
 performanceTest(put1k);
-//performanceTest(curReadSeq);
+performanceTest(curReadSeq);
 performanceTest(get1k);
-//performanceTest(get1k);
-//performanceTest(get1k);
+performanceTest(get1k);
+performanceTest(get1k);
