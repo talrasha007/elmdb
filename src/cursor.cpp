@@ -93,6 +93,11 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 		break;
 	}
 
+	if (kk.hasError() || vv.hasError()) {
+		ThrowException(Exception::Error(String::New("Key/Value data type error.")));
+		NanReturnUndefined();
+	}
+
 	int rc = mdb_cursor_get(cw->cursor, &key, &data, OP);
 
 	if (rc == MDB_NOTFOUND) {

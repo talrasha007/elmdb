@@ -132,6 +132,11 @@ NAN_METHOD(TxnWrap::get) {
 	}
 
 	MDBVal kk(args[1]);
+	if (kk.hasError()) {
+		ThrowException(Exception::Error(String::New("Key/Value data type error.")));
+		NanReturnUndefined();
+	}
+
 	MDB_val key = kk.val(), data;
 
 	int rc = mdb_get(tw->txn, dw->dbi, &key, &data);
@@ -159,6 +164,11 @@ NAN_METHOD(TxnWrap::put) {
 
 	int flags = 0;
 	MDBVal key(args[1]), data(args[2], true);
+	if (key.hasError() || data.hasError()) {
+		ThrowException(Exception::Error(String::New("Key/Value data type error.")));
+		NanReturnUndefined();
+	}
+
 	MDB_val tk(key.val()), tv(data.val());
 	int rc = mdb_put(tw->txn, dw->dbi, &tk, &tv, flags);
 	if (rc != 0) {
@@ -187,6 +197,11 @@ NAN_METHOD(TxnWrap::del) {
 	if (!args[2]->IsUndefined()) {
 		vv.from(args[2]);
 		data = vv.val();
+	}
+
+	if (kk.hasError() || vv.hasError()) {
+		ThrowException(Exception::Error(String::New("Key/Value data type error.")));
+		NanReturnUndefined();
 	}
 
 	int rc = mdb_del(tw->txn, dw->dbi, &key, args[2]->IsUndefined() ? NULL : &data);
