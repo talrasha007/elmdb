@@ -9,8 +9,8 @@ class MDBVal {
 private:
 	MDB_val _val;
 	uint32_t _intval;
-	bool _error;
 	bool _shouldFree;
+	bool _error;
 
 public:
 	MDBVal() : _shouldFree(false), _error(false) {
