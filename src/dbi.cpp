@@ -96,7 +96,7 @@ NAN_METHOD(DbiWrap::ctor) {
 	DbiWrap* dw = new DbiWrap(ew->env, dbi);
 	dw->needsClose = true;
 	dw->Wrap(args.This());
-	dw->keyIsUint32 = keyIsUint32;
+	dw->keyIsUint32 = keyIsUint32 != 0;
 
 	NanReturnValue(args.This());
 }
@@ -162,5 +162,6 @@ void DbiWrap::setupExports(Handle<Object> exports) {
 	// TODO: wrap mdb_stat too
 	// DbiWrap: Get constructor
 	//EnvWrap::dbiCtor = Persistent<Function>::New(dbiTpl->GetFunction());
-	NanAssignPersistent(Function, EnvWrap::dbiCtor, dbiTpl->GetFunction());
+	//NanAssignPersistent(Function, EnvWrap::dbiCtor, dbiTpl->GetFunction());
+	exports->Set(NanSymbol("Dbi"), dbiTpl->GetFunction());
 }

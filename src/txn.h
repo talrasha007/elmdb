@@ -9,6 +9,8 @@ Represents a transaction running on a database environment.
 */
 class TxnWrap : public node::ObjectWrap {
 private:
+	bool readonly;
+
 	// The wrapped object
 	MDB_txn *txn;
 	// Reference to the MDB_env of the wrapped MDB_txn
@@ -51,7 +53,8 @@ public:
 	static NAN_METHOD(reset);
 
 	/*
-	Renews a read-only transaction after it has been reset.
+	If read-only, renews a transaction after it has been reset.
+	Else, recreate a transaction.
 	(Wrapper for `mdb_txn_renew`)
 	*/
 	static NAN_METHOD(renew);

@@ -5,10 +5,6 @@
 using namespace v8;
 using namespace node;
 
-Persistent<Function> EnvWrap::txnCtor;
-
-Persistent<Function> EnvWrap::dbiCtor;
-
 typedef struct EnvSyncData {
 	uv_work_t request;
 	NanCallback* callback;
@@ -142,26 +138,6 @@ NAN_METHOD(EnvWrap::close) {
 	ew->env = NULL;
 
 	NanReturnUndefined();
-}
-
-NAN_METHOD(EnvWrap::beginTxn) {
-	NanScope();
-
-	const unsigned argc = 2;
-	Handle<Value> argv[argc] = { args.This(), args[0] };
-	Local<Object> instance = NanPersistentToLocal(txnCtor)->NewInstance(argc, argv);
-
-	NanReturnValue(instance);
-}
-
-NAN_METHOD(EnvWrap::openDbi) {
-	NanScope();
-
-	const unsigned argc = 2;
-	Handle<Value> argv[argc] = { args.This(), args[0] };
-	Local<Object> instance = NanPersistentToLocal(dbiCtor)->NewInstance(argc, argv);
-
-	NanReturnValue(instance);
 }
 
 void sync_cb(uv_work_t *request) {

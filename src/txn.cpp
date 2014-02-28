@@ -9,7 +9,7 @@
 using namespace v8;
 using namespace node;
 
-TxnWrap::TxnWrap(MDB_env *env, MDB_txn *txn) {
+TxnWrap::TxnWrap(MDB_env *env, MDB_txn *txn) : readonly(false) {
 	this->env = env;
 	this->txn = txn;
 }
@@ -33,7 +33,9 @@ NAN_METHOD(TxnWrap::ctor) {
 		// Get flags from options
 		//setFlagFromValue(&flags, MDB_RDONLY, "readOnly", false, options);
 		Handle<Value> flagArg = options->Get(NanSymbol("flags"));
-		if (flagArg->IsUint32()) flags = flagArg->Uint32Value();
+		if (flagArg->IsUint32()) {
+			flags = flagArg->Uint32Value();
+		}
 	}
 
 
@@ -45,6 +47,7 @@ NAN_METHOD(TxnWrap::ctor) {
 	}
 
 	TxnWrap* tw = new TxnWrap(ew->env, txn);
+	tw->readonly = (flags & MDB_RDONLY) != 0;
 	tw->Wrap(args.This());
 
 	NanReturnValue(args.This());
@@ -106,15 +109,29 @@ NAN_METHOD(TxnWrap::renew) {
 
 	TxnWrap *tw = ObjectWrap::Unwrap<TxnWrap>(args.This());
 
-	if (!tw->txn) {
-		ThrowException(Exception::Error(String::New("The transaction is already closed.")));
-		NanReturnUndefined();
-	}
+	if (tw->readonly) {
+		if (!tw->txn) {
+			ThrowException(Exception::Error(String::New("The transaction is already closed.")));
+			NanReturnUndefined();
+		}
 
-	int rc = mdb_txn_renew(tw->txn);
-	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
-		NanReturnUndefined();
+		int rc = mdb_txn_renew(tw->txn);
+		if (rc != 0) {
+			ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+			NanReturnUndefined();
+		}
+	}
+	else {
+		if (tw->txn) {
+			ThrowException(Exception::Error(String::New("The transaction is still opened.")));
+			NanReturnUndefined();
+		}
+
+		int rc = mdb_txn_begin(tw->env, NULL, 0, &tw->txn);
+		if (rc != 0) {
+			ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+			NanReturnUndefined();
+		}
 	}
 
 	NanReturnUndefined();
@@ -229,5 +246,6 @@ void TxnWrap::setupExports(Handle<v8::Object> exports) {
 	// TODO: wrap mdb_cmp too
 	// TODO: wrap mdb_dcmp too
 	// TxnWrap: Get constructor
-	NanAssignPersistent(Function, EnvWrap::txnCtor, txnTpl->GetFunction());
+	//NanAssignPersistent(Function, EnvWrap::txnCtor, txnTpl->GetFunction());
+	exports->Set(NanSymbol("Txn"), txnTpl->GetFunction());
 }

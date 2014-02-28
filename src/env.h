@@ -7,10 +7,6 @@ class EnvWrap : public node::ObjectWrap
 private:
 	// The wrapped object
 	MDB_env *env;
-	// Constructor for TxnWrap
-	static v8::Persistent<v8::Function> txnCtor;
-	// Constructor for DbiWrap
-	static v8::Persistent<v8::Function> dbiCtor;
 
 	friend class TxnWrap;
 	friend class DbiWrap;
