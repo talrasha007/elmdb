@@ -179,7 +179,7 @@ NAN_METHOD(TxnWrap::put) {
 		NanReturnUndefined();
 	}
 
-	int flags = 0;
+	int flags = (args[3]->IsInt32() || args[3]->IsUint32()) ? args[3]->Int32Value() : 0;
 	MDBVal key(args[1]), data(args[2], true);
 	if (key.hasError() || data.hasError()) {
 		ThrowException(Exception::Error(String::New("Key/Value data type error.")));
