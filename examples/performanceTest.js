@@ -5,10 +5,11 @@ env.open({
     path: './',
     mapSize: 1024 * 1024 * 256,
     maxDbs: 10,
-    flags: elmdb.MDB_NOSYNC | elmdb.MDB_NOMETASYNC | elmdb.MDB_NOLOCK | elmdb.MDB_NOTLS
+    flags: elmdb.MDB_NOSYNC | elmdb.MDB_MAPASYNC | elmdb.MDB_WRITEMAP
+    //flags: elmdb.MDB_NOSYNC
 });
 
-var dbi = env.openDbi({
+var dbi = new elmdb.Dbi(env, {
     name: 'testdb',
     flags: elmdb.MDB_CREATE
 });
@@ -22,10 +23,11 @@ function performanceTest(fn) {
 }
 
 function put(cb) {
+    var txn = new (elmdb.Txn)(env);
     function pp(k) {
-        var txn = env.beginTxn();
         txn.put(dbi, k, '');
         txn.commit();
+        txn.renew();
     }
 
     for (var i = 0; i < 1000; i++) {
@@ -42,12 +44,13 @@ function put1k(cb) {
         txn.put(dbi, k, k);
     }
 
+    var txn = new (elmdb.Txn)(env);
     for (var i = 0; i < 1000; i++) {
-        var txn = env.beginTxn();
         for (var j = 0; j < 1000; j++) {
             pp(i + '.' + j);
         }
         txn.commit();
+        txn.renew();
     }
 
     cb(null, 'insert 1M records(1k per txn)');
@@ -59,7 +62,7 @@ function get1k(cb) {
         //txn.get(dbi, new Buffer(k));
     }
 
-    var txn = env.beginTxn({ flags: elmdb.MDB_RDONLY });
+    var txn = new (elmdb.Txn)(env, { flags: elmdb.MDB_RDONLY });
     for (var i = 0; i < 1000; i++) {
         for (var j = 1000; j >= 0; j--) {
             gg(i + '.' + j);
@@ -73,7 +76,7 @@ function get1k(cb) {
 }
 
 function curReadSeq(cb) {
-    var txn = env.beginTxn({ flags: elmdb.MDB_RDONLY }),
+    var txn = new (elmdb.Txn)(env, { flags: elmdb.MDB_RDONLY }),
         cur = new elmdb.Cursor(txn, dbi),
         cnt = 0;
 
@@ -92,7 +95,7 @@ function curReadSeq(cb) {
     cb(null, 'cur seq read ' + cnt + ' records');
 }
 
-//performanceTest(put);
+performanceTest(put);
 performanceTest(put1k);
 performanceTest(curReadSeq);
 performanceTest(get1k);
