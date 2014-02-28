@@ -36,6 +36,7 @@ function put(cb) {
         }
     }
 
+    txn.abort();
     cb(null, 'insert 1M records');
 }
 
@@ -67,8 +68,8 @@ function get1k(cb) {
         for (var j = 1000; j >= 0; j--) {
             gg(i + '.' + j);
         }
-        //txn.reset();
-        //txn.renew();
+        txn.reset();
+        txn.renew();
     }
 
     txn.abort();
