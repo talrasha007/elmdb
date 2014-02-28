@@ -195,8 +195,8 @@ void EnvWrap::setupExports(Handle<v8::Object> exports) {
 	// EnvWrap: Add functions to the prototype
 	NODE_SET_METHOD(envTpl->PrototypeTemplate(), "open", EnvWrap::open);
 	NODE_SET_METHOD(envTpl->PrototypeTemplate(), "close", EnvWrap::close);
-	NODE_SET_METHOD(envTpl->PrototypeTemplate(), "beginTxn", EnvWrap::beginTxn);
-	NODE_SET_METHOD(envTpl->PrototypeTemplate(), "openDbi", EnvWrap::openDbi);
+	//NODE_SET_METHOD(envTpl->PrototypeTemplate(), "beginTxn", EnvWrap::beginTxn);
+	//NODE_SET_METHOD(envTpl->PrototypeTemplate(), "openDbi", EnvWrap::openDbi);
 	NODE_SET_METHOD(envTpl->PrototypeTemplate(), "sync", EnvWrap::sync);
 	// TODO: wrap mdb_env_copy too
 	// TODO: wrap mdb_env_stat too
