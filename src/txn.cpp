@@ -42,7 +42,7 @@ NAN_METHOD(TxnWrap::ctor) {
 	MDB_txn *txn;
 	int rc = mdb_txn_begin(ew->env, NULL, flags, &txn);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -59,14 +59,14 @@ NAN_METHOD(TxnWrap::commit) {
 	TxnWrap *tw = ObjectWrap::Unwrap<TxnWrap>(args.This());
 
 	if (!tw->txn) {
-		NanThrowError(Exception::Error(NanNew<String>("The transaction is already closed.")));
+		NanThrowError("The transaction is already closed.");
 		NanReturnUndefined();
 	}
 
 	int rc = mdb_txn_commit(tw->txn);
 	tw->txn = NULL;
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -79,7 +79,7 @@ NAN_METHOD(TxnWrap::abort) {
 	TxnWrap *tw = ObjectWrap::Unwrap<TxnWrap>(args.This());
 
 	if (!tw->txn) {
-		NanThrowError(Exception::Error(NanNew<String>("The transaction is already closed.")));
+		NanThrowError("The transaction is already closed.");
 		NanReturnUndefined();
 	}
 
@@ -95,7 +95,7 @@ NAN_METHOD(TxnWrap::reset) {
 	TxnWrap *tw = ObjectWrap::Unwrap<TxnWrap>(args.This());
 
 	if (!tw->txn) {
-		NanThrowError(Exception::Error(NanNew<String>("The transaction is already closed.")));
+		NanThrowError("The transaction is already closed.");
 		NanReturnUndefined();
 	}
 
@@ -111,25 +111,25 @@ NAN_METHOD(TxnWrap::renew) {
 
 	if (tw->readonly) {
 		if (!tw->txn) {
-			NanThrowError(Exception::Error(NanNew<String>("The transaction is already closed.")));
+			NanThrowError("The transaction is already closed.");
 			NanReturnUndefined();
 		}
 
 		int rc = mdb_txn_renew(tw->txn);
 		if (rc != 0) {
-			NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+			NanThrowError(mdb_strerror(rc));
 			NanReturnUndefined();
 		}
 	}
 	else {
 		if (tw->txn) {
-			NanThrowError(Exception::Error(NanNew<String>("The transaction is still opened.")));
+			NanThrowError("The transaction is still opened.");
 			NanReturnUndefined();
 		}
 
 		int rc = mdb_txn_begin(tw->env, NULL, 0, &tw->txn);
 		if (rc != 0) {
-			NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+			NanThrowError(mdb_strerror(rc));
 			NanReturnUndefined();
 		}
 	}
@@ -144,13 +144,13 @@ NAN_METHOD(TxnWrap::get) {
 	DbiWrap *dw = ObjectWrap::Unwrap<DbiWrap>(args[0]->ToObject());
 
 	if (!tw->txn) {
-		NanThrowError(Exception::Error(NanNew<String>("The transaction is already closed.")));
+		NanThrowError("The transaction is already closed.");
 		NanReturnUndefined();
 	}
 
 	MDBVal kk(args[1]);
 	if (kk.hasError()) {
-		NanThrowError(Exception::Error(NanNew<String>("Key/Value data type error.")));
+		NanThrowError("Key/Value data type error.");
 		NanReturnUndefined();
 	}
 
@@ -161,7 +161,7 @@ NAN_METHOD(TxnWrap::get) {
 	if (rc == MDB_NOTFOUND) NanReturnNull();
 
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -175,21 +175,21 @@ NAN_METHOD(TxnWrap::put) {
 	DbiWrap *dw = ObjectWrap::Unwrap<DbiWrap>(args[0]->ToObject());
 
 	if (!tw->txn) {
-		NanThrowError(Exception::Error(NanNew<String>("The transaction is already closed.")));
+		NanThrowError("The transaction is already closed.");
 		NanReturnUndefined();
 	}
 
 	int flags = (args[3]->IsInt32() || args[3]->IsUint32()) ? args[3]->Int32Value() : 0;
 	MDBVal key(args[1]), data(args[2], true);
 	if (key.hasError() || data.hasError()) {
-		NanThrowError(Exception::Error(NanNew<String>("Key/Value data type error.")));
+		NanThrowError("Key/Value data type error.");
 		NanReturnUndefined();
 	}
 
 	MDB_val tk(key.val()), tv(data.val());
 	int rc = mdb_put(tw->txn, dw->dbi, &tk, &tv, flags);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -203,7 +203,7 @@ NAN_METHOD(TxnWrap::del) {
 	DbiWrap *dw = ObjectWrap::Unwrap<DbiWrap>(args[0]->ToObject());
 
 	if (!tw->txn) {
-		NanThrowError(Exception::Error(NanNew<String>("The transaction is already closed.")));
+		NanThrowError("The transaction is already closed.");
 		NanReturnUndefined();
 	}
 
@@ -217,13 +217,13 @@ NAN_METHOD(TxnWrap::del) {
 	}
 
 	if (kk.hasError() || vv.hasError()) {
-		NanThrowError(Exception::Error(NanNew<String>("Key/Value data type error.")));
+		NanThrowError("Key/Value data type error.");
 		NanReturnUndefined();
 	}
 
 	int rc = mdb_del(tw->txn, dw->dbi, &key, args[2]->IsUndefined() ? NULL : &data);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 

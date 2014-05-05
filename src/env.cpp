@@ -33,7 +33,7 @@ NAN_METHOD(EnvWrap::ctor) {
 
 	if (rc != 0) {
 		mdb_env_close(wrapper->env);
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -65,7 +65,7 @@ NAN_METHOD(EnvWrap::open) {
 	EnvWrap *ew = ObjectWrap::Unwrap<EnvWrap>(args.This());
 
 	if (!ew->env) {
-		NanThrowError(Exception::Error(NanNew<String>("The environment is already closed.")));
+		NanThrowError("The environment is already closed.");
 		NanReturnUndefined();
 	}
 
@@ -75,7 +75,7 @@ NAN_METHOD(EnvWrap::open) {
 	// Parse the maxDbs option
 	rc = applyUint32Setting<unsigned>(&mdb_env_set_maxdbs, ew->env, options, 1, "maxDbs");
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -86,7 +86,7 @@ NAN_METHOD(EnvWrap::open) {
 		size_t mapSizeSizeT = (size_t)mapSizeDouble;
 		rc = mdb_env_set_mapsize(ew->env, mapSizeSizeT);
 		if (rc != 0) {
-			NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+			NanThrowError(mdb_strerror(rc));
 			NanReturnUndefined();
 		}
 	}
@@ -94,7 +94,7 @@ NAN_METHOD(EnvWrap::open) {
 	// Parse the maxDbs option
 	rc = applyUint32Setting<unsigned>(&mdb_env_set_maxreaders, ew->env, options, 1, "maxReaders");
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -118,7 +118,7 @@ NAN_METHOD(EnvWrap::open) {
 	if (rc != 0) {
 		mdb_env_close(ew->env);
 		ew->env = NULL;
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -130,7 +130,7 @@ NAN_METHOD(EnvWrap::close) {
 	EnvWrap *ew = ObjectWrap::Unwrap<EnvWrap>(args.This());
 
 	if (!ew->env) {
-		NanThrowError(Exception::Error(NanNew<String>("The environment is already closed.")));
+		NanThrowError("The environment is already closed.");
 		NanReturnUndefined();
 	}
 
@@ -170,7 +170,7 @@ NAN_METHOD(EnvWrap::sync) {
 	EnvWrap *ew = ObjectWrap::Unwrap<EnvWrap>(args.This());
 
 	if (!ew->env) {
-		NanThrowError(Exception::Error(NanNew<String>("The environment is already closed.")));
+		NanThrowError("The environment is already closed.");
 		NanReturnUndefined();
 	}
 

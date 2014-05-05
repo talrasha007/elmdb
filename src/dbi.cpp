@@ -63,7 +63,7 @@ NAN_METHOD(DbiWrap::ctor) {
 		//}
 	}
 	else {
-		NanThrowError(Exception::Error(NanNew<String>("Invalid parameters.")));
+		NanThrowError("Invalid parameters.");
 		NanReturnUndefined();
 	}
 
@@ -72,7 +72,7 @@ NAN_METHOD(DbiWrap::ctor) {
 	if (rc != 0) {
 		delete cname;
 		mdb_txn_abort(txn);
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -81,14 +81,14 @@ NAN_METHOD(DbiWrap::ctor) {
 	delete cname;
 	if (rc != 0) {
 		mdb_txn_abort(txn);
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
 	// Commit transaction
 	rc = mdb_txn_commit(txn);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -129,21 +129,21 @@ NAN_METHOD(DbiWrap::drop) {
 	// Begin transaction
 	rc = mdb_txn_begin(dw->env, NULL, 0, &txn);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
 	// Drop database
 	rc = mdb_drop(txn, dw->dbi, del);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
 	// Commit transaction
 	rc = mdb_txn_commit(txn);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 

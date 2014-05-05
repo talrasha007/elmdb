@@ -29,7 +29,7 @@ NAN_METHOD(CursorWrap::ctor) {
 	MDB_cursor *cursor;
 	int rc = mdb_cursor_open(tw->txn, dw->dbi, &cursor);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -59,7 +59,7 @@ NAN_METHOD(CursorWrap::del) {
 
 	int rc = mdb_cursor_del(cw->cursor, 0);
 	if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
@@ -94,7 +94,7 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 	}
 
 	if (kk.hasError() || vv.hasError()) {
-		NanThrowError(Exception::Error(NanNew<String>("Key/Value data type error.")));
+		NanThrowError("Key/Value data type error.");
 		NanReturnUndefined();
 	}
 
@@ -104,7 +104,7 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 		NanReturnNull();
 	}
 	else if (rc != 0) {
-		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
+		NanThrowError(mdb_strerror(rc));
 		NanReturnUndefined();
 	}
 
