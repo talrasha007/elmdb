@@ -33,7 +33,7 @@ NAN_METHOD(EnvWrap::ctor) {
 
 	if (rc != 0) {
 		mdb_env_close(wrapper->env);
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -65,7 +65,7 @@ NAN_METHOD(EnvWrap::open) {
 	EnvWrap *ew = ObjectWrap::Unwrap<EnvWrap>(args.This());
 
 	if (!ew->env) {
-		ThrowException(Exception::Error(String::New("The environment is already closed.")));
+		NanThrowError(Exception::Error(NanNew<String>("The environment is already closed.")));
 		NanReturnUndefined();
 	}
 
@@ -75,7 +75,7 @@ NAN_METHOD(EnvWrap::open) {
 	// Parse the maxDbs option
 	rc = applyUint32Setting<unsigned>(&mdb_env_set_maxdbs, ew->env, options, 1, "maxDbs");
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -86,7 +86,7 @@ NAN_METHOD(EnvWrap::open) {
 		size_t mapSizeSizeT = (size_t)mapSizeDouble;
 		rc = mdb_env_set_mapsize(ew->env, mapSizeSizeT);
 		if (rc != 0) {
-			ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+			NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 			NanReturnUndefined();
 		}
 	}
@@ -94,7 +94,7 @@ NAN_METHOD(EnvWrap::open) {
 	// Parse the maxDbs option
 	rc = applyUint32Setting<unsigned>(&mdb_env_set_maxreaders, ew->env, options, 1, "maxReaders");
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -118,7 +118,7 @@ NAN_METHOD(EnvWrap::open) {
 	if (rc != 0) {
 		mdb_env_close(ew->env);
 		ew->env = NULL;
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -130,7 +130,7 @@ NAN_METHOD(EnvWrap::close) {
 	EnvWrap *ew = ObjectWrap::Unwrap<EnvWrap>(args.This());
 
 	if (!ew->env) {
-		ThrowException(Exception::Error(String::New("The environment is already closed.")));
+		NanThrowError(Exception::Error(NanNew<String>("The environment is already closed.")));
 		NanReturnUndefined();
 	}
 
@@ -153,10 +153,10 @@ void after_sync_cb(uv_work_t *request, int) {
 	Handle<Value> argv[argc];
 
 	if (d->rc == 0) {
-		argv[0] = Null();
+		argv[0] = NanNull();
 	}
 	else {
-		argv[0] = Exception::Error(String::New(mdb_strerror(d->rc)));
+		argv[0] = Exception::Error(NanNew<String>(mdb_strerror(d->rc)));
 	}
 
 	d->callback->Call(argc, argv);
@@ -170,7 +170,7 @@ NAN_METHOD(EnvWrap::sync) {
 	EnvWrap *ew = ObjectWrap::Unwrap<EnvWrap>(args.This());
 
 	if (!ew->env) {
-		ThrowException(Exception::Error(String::New("The environment is already closed.")));
+		NanThrowError(Exception::Error(NanNew<String>("The environment is already closed.")));
 		NanReturnUndefined();
 	}
 
@@ -189,7 +189,7 @@ NAN_METHOD(EnvWrap::sync) {
 
 void EnvWrap::setupExports(Handle<v8::Object> exports) {
 	// EnvWrap: Prepare constructor template
-	Local<FunctionTemplate> envTpl = FunctionTemplate::New(EnvWrap::ctor);
+	Local<FunctionTemplate> envTpl = NanNew<FunctionTemplate>(EnvWrap::ctor);
 	envTpl->SetClassName(NanSymbol("Env"));
 	envTpl->InstanceTemplate()->SetInternalFieldCount(1);
 	// EnvWrap: Add functions to the prototype

@@ -25,7 +25,7 @@ function performanceTest(fn) {
 function put(cb) {
     var txn = new (elmdb.Txn)(env);
     function pp(k) {
-        txn.put(dbi, k, '', elmdb.MDB_NOOVERWRITE);
+        txn.put(dbi, k, '');
         txn.commit();
         txn.renew();
     }
@@ -42,7 +42,7 @@ function put(cb) {
 
 function put1k(cb) {
     function pp(k) {
-        txn.put(dbi, k, k, elmdb.MDB_NOOVERWRITE);
+        txn.put(dbi, k, k);
     }
 
     var txn = new (elmdb.Txn)(env);

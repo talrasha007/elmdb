@@ -29,7 +29,7 @@ NAN_METHOD(CursorWrap::ctor) {
 	MDB_cursor *cursor;
 	int rc = mdb_cursor_open(tw->txn, dw->dbi, &cursor);
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -59,7 +59,7 @@ NAN_METHOD(CursorWrap::del) {
 
 	int rc = mdb_cursor_del(cw->cursor, 0);
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -94,7 +94,7 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 	}
 
 	if (kk.hasError() || vv.hasError()) {
-		ThrowException(Exception::Error(String::New("Key/Value data type error.")));
+		NanThrowError(Exception::Error(NanNew<String>("Key/Value data type error.")));
 		NanReturnUndefined();
 	}
 
@@ -104,17 +104,17 @@ template <MDB_cursor_op OP> NAN_METHOD(CursorWrap::getCommon) {
 		NanReturnNull();
 	}
 	else if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
-	Local<Array> ret = Array::New(2);
+	Local<Array> ret = NanNew<Array>(2);
 
 	// If key is not returned by lmdb, dup it.
-	if (cw->keyIsUint32) ret->Set(0, Number::New(*(uint32_t*)key.mv_data));
-	else ret->Set(0, String::New((char*)key.mv_data, int(key.mv_size)));
+	if (cw->keyIsUint32) ret->Set(0, NanNew<Number>(*(uint32_t*)key.mv_data));
+	else ret->Set(0, NanNew<String>((char*)key.mv_data, int(key.mv_size)));
 
-	ret->Set(1, String::New((char*)data.mv_data, int(data.mv_size)));
+	ret->Set(1, NanNew<String>((char*)data.mv_data, int(data.mv_size)));
 	
 	NanReturnValue(ret);
 }
@@ -135,8 +135,8 @@ NAN_METHOD(CursorWrap::goToDupRange) { return getCommon<MDB_GET_BOTH_RANGE>(args
 
 void CursorWrap::setupExports(Handle<Object> exports) {
 	// CursorWrap: Prepare constructor template
-	Local<FunctionTemplate> cursorTpl = FunctionTemplate::New(CursorWrap::ctor);
-	cursorTpl->SetClassName(String::NewSymbol("Cursor"));
+	Local<FunctionTemplate> cursorTpl = NanNew<FunctionTemplate>(CursorWrap::ctor);
+	cursorTpl->SetClassName(NanSymbol("Cursor"));
 	cursorTpl->InstanceTemplate()->SetInternalFieldCount(1);
 	// CursorWrap: Add functions to the prototype
 	NODE_SET_METHOD(cursorTpl->PrototypeTemplate(), "close", CursorWrap::close);
@@ -156,6 +156,6 @@ void CursorWrap::setupExports(Handle<Object> exports) {
 	NODE_SET_METHOD(cursorTpl->PrototypeTemplate(), "del", CursorWrap::del);
 
 	// Set exports
-	exports->Set(String::NewSymbol("Cursor"), cursorTpl->GetFunction());
+	exports->Set(NanSymbol("Cursor"), cursorTpl->GetFunction());
 }
 

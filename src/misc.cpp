@@ -7,7 +7,7 @@ using namespace node;
 
 void freeNothing(char*, void*) { }
 
-#define EXPORT_FLAG(flag) exports->Set(NanSymbol(#flag), Number::New(flag))
+#define EXPORT_FLAG(flag) exports->Set(NanSymbol(#flag), NanNew<Number>(flag))
 
 void exportFlags(v8::Handle<v8::Object> exports) {
 	EXPORT_FLAG(MDB_NOSUBDIR);

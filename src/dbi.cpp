@@ -32,7 +32,7 @@ NAN_METHOD(DbiWrap::ctor) {
 	EnvWrap *ew = ObjectWrap::Unwrap<EnvWrap>(args[0]->ToObject());
 	if (args[1]->IsObject()) {
 		Local<Object> options = args[1]->ToObject();
-		Local<String> name = options->Get(String::NewSymbol("name"))->ToString();
+		Local<String> name = options->Get(NanSymbol("name"))->ToString();
 
 		size_t l;
 		cname = NanCString(name, &l);
@@ -63,7 +63,7 @@ NAN_METHOD(DbiWrap::ctor) {
 		//}
 	}
 	else {
-		ThrowException(Exception::Error(String::New("Invalid parameters.")));
+		NanThrowError(Exception::Error(NanNew<String>("Invalid parameters.")));
 		NanReturnUndefined();
 	}
 
@@ -72,7 +72,7 @@ NAN_METHOD(DbiWrap::ctor) {
 	if (rc != 0) {
 		delete cname;
 		mdb_txn_abort(txn);
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -81,14 +81,14 @@ NAN_METHOD(DbiWrap::ctor) {
 	delete cname;
 	if (rc != 0) {
 		mdb_txn_abort(txn);
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
 	// Commit transaction
 	rc = mdb_txn_commit(txn);
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -122,28 +122,28 @@ NAN_METHOD(DbiWrap::drop) {
 	// Check if the database should be deleted
 	if (args.Length() == 2 && args[1]->IsObject()) {
 		Handle<Object> options = args[1]->ToObject();
-		Handle<Value> opt = options->Get(String::NewSymbol("justFreePages"));
+		Handle<Value> opt = options->Get(NanSymbol("justFreePages"));
 		del = opt->IsBoolean() ? !(opt->BooleanValue()) : 1;
 	}
 
 	// Begin transaction
 	rc = mdb_txn_begin(dw->env, NULL, 0, &txn);
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
 	// Drop database
 	rc = mdb_drop(txn, dw->dbi, del);
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
 	// Commit transaction
 	rc = mdb_txn_commit(txn);
 	if (rc != 0) {
-		ThrowException(Exception::Error(String::New(mdb_strerror(rc))));
+		NanThrowError(Exception::Error(NanNew<String>(mdb_strerror(rc))));
 		NanReturnUndefined();
 	}
 
@@ -152,8 +152,8 @@ NAN_METHOD(DbiWrap::drop) {
 
 void DbiWrap::setupExports(Handle<Object> exports) {
 	// DbiWrap: Prepare constructor template
-	Local<FunctionTemplate> dbiTpl = FunctionTemplate::New(DbiWrap::ctor);
-	dbiTpl->SetClassName(String::NewSymbol("Dbi"));
+	Local<FunctionTemplate> dbiTpl = NanNew<FunctionTemplate>(DbiWrap::ctor);
+	dbiTpl->SetClassName(NanSymbol("Dbi"));
 	dbiTpl->InstanceTemplate()->SetInternalFieldCount(1);
 	// DbiWrap: Add functions to the prototype
 	NODE_SET_METHOD(dbiTpl->PrototypeTemplate(), "close", DbiWrap::close);

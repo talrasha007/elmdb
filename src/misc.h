@@ -44,7 +44,7 @@ public:
 		}
 		else {
 			_error = true;
-			//v8::ThrowException(v8::Exception::Error(v8::String::New("Unsupported type.")));
+			//NanThrowError(v8::Exception::Error(v8::NanNew<String>("Unsupported type.")));
 		}
 	}
 
