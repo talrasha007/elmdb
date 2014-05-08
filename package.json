@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "repository": "https://github.com/talrasha007/elmdb.git",
     "dependencies": {
-        "nan": "*"
+        "nan": "~0.8.0"
     },
     "readmeFile": "README.md",
     "main": "build/Release/elmdb.node"
