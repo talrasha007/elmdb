@@ -122,6 +122,9 @@ NAN_METHOD(EnvWrap::open) {
 		NanReturnUndefined();
 	}
 
+	int cleared = 0;
+	mdb_reader_check(ew->env, &cleared);
+
 	NanReturnUndefined();
 }
 
